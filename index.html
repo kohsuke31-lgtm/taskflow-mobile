@@ -225,14 +225,6 @@ body {
         ＋ 今日中に追加する
       </button>
     </div>
-
-    <!-- 最近追加したタスク -->
-    <div class="card">
-      <div class="card-title">🕐 今日追加したタスク</div>
-      <div id="recentList">
-        <div style="font-size:12px;color:var(--muted);text-align:center;padding:12px 0">まだタスクがありません</div>
-      </div>
-    </div>
   </div>
 
   <!-- 下部バー -->
@@ -384,38 +376,6 @@ function showApp() {
   document.getElementById('logoutAvatar').textContent = currentUser.name[0];
   document.getElementById('logoutAvatar').style.background = currentUser.color;
   document.getElementById('logoutName').textContent = currentUser.name;
-
-  // デフォルト期限を今日に
-  document.getElementById('taskDue').value = todayStr;
-
-  loadRecentTasks();
-}
-
-async function loadRecentTasks() {
-  const tasks = await getMyTasks(currentUser.id);
-  // 今日追加したタスク（新しい順）
-  const recent = tasks
-    .filter(t => {
-      const d = new Date(t.createdAt);
-      return d.toDateString() === today.toDateString();
-    })
-    .sort((a, b) => b.createdAt - a.createdAt)
-    .slice(0, 10);
-
-  const el = document.getElementById('recentList');
-  if (!recent.length) {
-    el.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px 0">まだタスクがありません</div>';
-    return;
-  }
-  const pColors = { high: '#f87171', mid: '#fbbf24', low: '#34d399' };
-  el.innerHTML = recent.map(t => `
-    <div class="recent-item">
-      <div class="recent-dot" style="background:${pColors[t.priority||'mid']}"></div>
-      <div>
-        <div class="recent-name">${esc(t.name)}</div>
-        <div class="recent-meta">${t.due ? '📅 ' + t.due : '期限なし'}${t.category ? ' · ' + t.category : ''}</div>
-      </div>
-    </div>`).join('');
 }
 
 async function addTask() {
@@ -454,7 +414,6 @@ async function addTask() {
   btn.innerHTML = '＋ 今日中に追加する';
 
   showToast('✅ 今日中に追加しました！');
-  loadRecentTasks();
 }
 
 function showToast(msg) {

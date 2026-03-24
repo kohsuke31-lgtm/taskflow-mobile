@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>TaskFlow — クイック登録</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+:root {
+  --bg: #0b0d12;
+  --surface: #13161f;
+  --surface2: #1a1e2a;
+  --border: #272c3d;
+  --accent: #4f8ef7;
+  --green: #34d399;
+  --yellow: #fbbf24;
+  --red: #f87171;
+  --text: #e2e5f0;
+  --muted: #5a6175;
+}
+
+body {
+  font-family: -apple-system, 'Noto Sans JP', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+}
+
+/* ── ヘッダー ── */
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 20px 14px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.header-logo { font-size: 18px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
+.header-logo span { color: var(--text); }
+.header-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* ── ログイン画面 ── */
+#loginScreen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 60px);
+  padding: 24px 20px;
+}
+.login-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px 24px;
+  width: 100%;
+  max-width: 400px;
+}
+.login-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+.login-sub { font-size: 12px; color: var(--muted); margin-bottom: 24px; }
+.login-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; display: block; }
+.login-input {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 16px; color: var(--text);
+  font-size: 16px; outline: none; margin-bottom: 14px;
+  -webkit-appearance: none;
+}
+.login-input:focus { border-color: var(--accent); }
+
+.user-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.user-chip {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 16px; cursor: pointer;
+  transition: border-color .15s;
+}
+.user-chip:active { border-color: var(--accent); background: rgba(79,142,247,.1); }
+.user-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 700; color: white; flex-shrink: 0;
+}
+.user-name { font-size: 14px; font-weight: 500; }
+.user-dept { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.divider { display: flex; align-items: center; gap: 10px; margin: 16px 0; color: var(--muted); font-size: 11px; }
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* ── メインフォーム ── */
+#appScreen { display: none; }
+
+.main { padding: 20px 16px; max-width: 500px; margin: 0 auto; }
+
+.welcome {
+  font-size: 20px; font-weight: 700; margin-bottom: 4px;
+}
+.welcome-sub { font-size: 12px; color: var(--muted); margin-bottom: 24px; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.card-title {
+  font-size: 11px; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 6px;
+}
+
+.field-label {
+  font-size: 12px; font-weight: 600; color: var(--muted);
+  margin-bottom: 6px; display: block;
+}
+.field-required { color: var(--red); margin-left: 3px; }
+
+.input {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 16px; color: var(--text);
+  font-family: inherit; font-size: 16px; outline: none; margin-bottom: 14px;
+  -webkit-appearance: none; transition: border-color .15s;
+}
+.input:focus { border-color: var(--accent); }
+.input::placeholder { color: var(--muted); }
+.input[type=date] { cursor: pointer; }
+
+.prio-row { display: flex; gap: 8px; margin-bottom: 14px; }
+.prio-btn {
+  flex: 1; padding: 12px 8px; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 10px;
+  color: var(--muted); font-family: inherit; font-size: 13px;
+  cursor: pointer; text-align: center; transition: all .15s;
+}
+.prio-btn.active-high { background: rgba(248,113,113,.15); border-color: var(--red); color: var(--red); font-weight: 700; }
+.prio-btn.active-mid  { background: rgba(251,191,36,.12); border-color: var(--yellow); color: var(--yellow); font-weight: 700; }
+.prio-btn.active-low  { background: rgba(52,211,153,.1); border-color: var(--green); color: var(--green); font-weight: 700; }
+
+.btn-submit {
+  width: 100%; padding: 16px; background: var(--accent); color: white;
+  border: none; border-radius: 14px; font-family: inherit; font-size: 16px;
+  font-weight: 700; cursor: pointer; transition: all .15s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-submit:active { transform: scale(0.98); opacity: .9; }
+.btn-submit:disabled { opacity: .5; }
+
+/* ── 完了メッセージ ── */
+.toast {
+  position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+  background: var(--green); color: #0b0d12; font-size: 14px; font-weight: 700;
+  padding: 12px 24px; border-radius: 50px; white-space: nowrap;
+  opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 100;
+}
+.toast.show { opacity: 1; }
+
+/* ── 最近追加したタスク ── */
+.recent-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 11px 0; border-bottom: 1px solid var(--border);
+}
+.recent-item:last-child { border-bottom: none; }
+.recent-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.recent-name { font-size: 13px; font-weight: 500; }
+.recent-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* ── ログアウト ── */
+.logout-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  position: fixed; bottom: 0; left: 0; right: 0;
+  z-index: 10;
+}
+.logout-user { display: flex; align-items: center; gap: 10px; }
+.logout-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; }
+.logout-name { font-size: 13px; font-weight: 500; }
+.btn-logout { background: none; border: 1px solid var(--border); color: var(--muted); font-size: 11px; padding: 5px 12px; border-radius: 7px; cursor: pointer; font-family: inherit; }
+
+.pb { padding-bottom: 72px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">Task<span>Flow</span></div>
+  <div class="header-sub">クイックタスク登録</div>
+</div>
+
+<!-- ログイン画面 -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-title">👋 ログイン</div>
+    <div class="login-sub">メンバーを選択するか、名前を入力してください</div>
+
+    <div class="user-list" id="userList"></div>
+
+    <div class="divider">または新規登録</div>
+
+    <label class="login-label">名前</label>
+    <input class="login-input" id="loginName" placeholder="例：田中 太郎" maxlength="20">
+    <label class="login-label">部署（任意）</label>
+    <input class="login-input" id="loginDept" placeholder="例：営業部">
+
+    <button class="btn-submit" onclick="doLogin()">→ 登録ページへ</button>
+  </div>
+</div>
+
+<!-- メイン画面 -->
+<div id="appScreen">
+  <div class="main pb">
+    <div class="welcome" id="welcomeMsg">こんにちは</div>
+    <div class="welcome-sub">タスクをサッと登録しましょう</div>
+
+    <!-- タスク追加フォーム -->
+    <div class="card">
+      <div class="card-title">✅ タスクを追加</div>
+
+      <label class="field-label">タスク名<span class="field-required">*</span></label>
+      <input class="input" id="taskName" placeholder="例：提案書を作成する">
+
+      <label class="field-label">期限</label>
+      <input class="input" type="date" id="taskDue" onclick="this.showPicker?this.showPicker():this.click()">
+
+      <label class="field-label">優先度</label>
+      <div class="prio-row">
+        <button class="prio-btn" id="prioHigh" onclick="setPrio('high')">🔴 高</button>
+        <button class="prio-btn active-mid" id="prioMid" onclick="setPrio('mid')">🟡 中</button>
+        <button class="prio-btn" id="prioLow" onclick="setPrio('low')">🟢 低</button>
+      </div>
+
+      <label class="field-label">カテゴリ（任意）</label>
+      <input class="input" id="taskCategory" placeholder="例：営業、開発">
+
+      <button class="btn-submit" id="submitBtn" onclick="addTask()">
+        ＋ タスクを追加する
+      </button>
+    </div>
+
+    <!-- 最近追加したタスク -->
+    <div class="card">
+      <div class="card-title">🕐 今日追加したタスク</div>
+      <div id="recentList">
+        <div style="font-size:12px;color:var(--muted);text-align:center;padding:12px 0">まだタスクがありません</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 下部バー -->
+  <div class="logout-row">
+    <div class="logout-user">
+      <div class="logout-avatar" id="logoutAvatar"></div>
+      <div class="logout-name" id="logoutName"></div>
+    </div>
+    <button class="btn-logout" onclick="doLogout()">ログアウト</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAvXp926duL5lKjwaCHIxpVlf06Ln3IBdE",
+  authDomain: "gyomukanri-da286.firebaseapp.com",
+  databaseURL: "https://gyomukanri-da286-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "gyomukanri-da286",
+  storageBucket: "gyomukanri-da286.firebasestorage.app",
+  messagingSenderId: "415322199821",
+  appId: "1:415322199821:web:2558d60b342a14a82a8244"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+
+// グローバルに公開（HTMLのonclick属性から呼び出せるように）
+window._fbDb = db;
+window._fbRef = ref;
+window._fbSet = set;
+window._fbGet = get;
+
+// Firebase準備完了後にアプリ起動
+window._firebaseReady = true;
+if (window._pendingInit) window._pendingInit();
+</script>
+
+<script>
+// ════ Firebase ラッパー ════════════════════════════
+async function fbSet(path, data) {
+  await _fbSet(_fbRef(_fbDb, path), data);
+}
+async function fbGet(path) {
+  const snap = await _fbGet(_fbRef(_fbDb, path));
+  return snap.exists() ? snap.val() : null;
+}
+
+// ════ DB ══════════════════════════════════════════
+async function getUsers() {
+  const d = await fbGet('users');
+  return d ? Object.values(d) : [];
+}
+async function setUsers(arr) {
+  const obj = {}; arr.forEach(u => { obj[u.id] = u; });
+  await fbSet('users', obj);
+}
+async function getMyTasks(uid) {
+  const d = await fbGet(`tasks/${uid}`);
+  return d ? Object.values(d) : [];
+}
+async function setMyTasks(uid, arr) {
+  const obj = {}; arr.forEach(t => { obj[t.id] = t; });
+  await fbSet(`tasks/${uid}`, obj);
+}
+
+// ════ State ════════════════════════════════════════
+const COLORS = ['#4f8ef7','#7c5af5','#34d399','#f87171','#fbbf24','#fb923c','#38bdf8','#a78bfa','#f472b6','#4ade80'];
+let currentUser = null;
+let priority = 'mid';
+const today = new Date();
+const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+
+// ════ Login ════════════════════════════════════════
+async function initApp() {
+  const saved = localStorage.getItem('tf_mobile_user');
+  const users = await getUsers();
+  if (saved) {
+    const u = users.find(x => x.id === saved);
+    if (u) { currentUser = u; showApp(); return; }
+  }
+  // 既存ユーザー一覧を表示
+  const list = document.getElementById('userList');
+  if (users.length) {
+    list.innerHTML = users.map(u => `
+      <div class="user-chip" onclick="loginAs('${u.id}')">
+        <div class="user-avatar" style="background:${u.color}">${u.name[0]}</div>
+        <div>
+          <div class="user-name">${u.name}</div>
+          ${u.dept ? `<div class="user-dept">${u.dept}</div>` : ''}
+        </div>
+      </div>`).join('');
+  } else {
+    list.style.display = 'none';
+  }
+}
+
+async function loginAs(uid) {
+  const users = await getUsers();
+  currentUser = users.find(u => u.id === uid);
+  localStorage.setItem('tf_mobile_user', uid);
+  showApp();
+}
+
+async function doLogin() {
+  const name = document.getElementById('loginName').value.trim();
+  if (!name) {
+    document.getElementById('loginName').style.borderColor = 'var(--red)';
+    setTimeout(() => document.getElementById('loginName').style.borderColor = '', 1500);
+    return;
+  }
+  const users = await getUsers();
+  const existing = users.find(u => u.name === name);
+  if (existing) { await loginAs(existing.id); return; }
+
+  const uid = 'u_' + Date.now();
+  const color = COLORS[users.length % COLORS.length];
+  const dept = document.getElementById('loginDept').value.trim();
+  const user = { id: uid, name, dept, color, joinedAt: Date.now() };
+  users.push(user);
+  await setUsers(users);
+  currentUser = user;
+  localStorage.setItem('tf_mobile_user', uid);
+  showApp();
+}
+
+function doLogout() {
+  localStorage.removeItem('tf_mobile_user');
+  currentUser = null;
+  document.getElementById('appScreen').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginName').value = '';
+  document.getElementById('loginDept').value = '';
+}
+
+// ════ App ══════════════════════════════════════════
+function showApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appScreen').style.display = 'block';
+
+  const h = today.getHours();
+  const greet = h < 12 ? 'おはようございます' : h < 17 ? 'こんにちは' : 'お疲れさまです';
+  document.getElementById('welcomeMsg').textContent = `${greet}、${currentUser.name}さん`;
+
+  document.getElementById('logoutAvatar').textContent = currentUser.name[0];
+  document.getElementById('logoutAvatar').style.background = currentUser.color;
+  document.getElementById('logoutName').textContent = currentUser.name;
+
+  // デフォルト期限を今日に
+  document.getElementById('taskDue').value = todayStr;
+
+  loadRecentTasks();
+}
+
+async function loadRecentTasks() {
+  const tasks = await getMyTasks(currentUser.id);
+  // 今日追加したタスク（新しい順）
+  const recent = tasks
+    .filter(t => {
+      const d = new Date(t.createdAt);
+      return d.toDateString() === today.toDateString();
+    })
+    .sort((a, b) => b.createdAt - a.createdAt)
+    .slice(0, 10);
+
+  const el = document.getElementById('recentList');
+  if (!recent.length) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px 0">まだタスクがありません</div>';
+    return;
+  }
+  const pColors = { high: '#f87171', mid: '#fbbf24', low: '#34d399' };
+  el.innerHTML = recent.map(t => `
+    <div class="recent-item">
+      <div class="recent-dot" style="background:${pColors[t.priority||'mid']}"></div>
+      <div>
+        <div class="recent-name">${esc(t.name)}</div>
+        <div class="recent-meta">${t.due ? '📅 ' + t.due : '期限なし'}${t.category ? ' · ' + t.category : ''}</div>
+      </div>
+    </div>`).join('');
+}
+
+function setPrio(p) {
+  priority = p;
+  document.getElementById('prioHigh').className = 'prio-btn' + (p==='high' ? ' active-high' : '');
+  document.getElementById('prioMid').className  = 'prio-btn' + (p==='mid'  ? ' active-mid'  : '');
+  document.getElementById('prioLow').className  = 'prio-btn' + (p==='low'  ? ' active-low'  : '');
+}
+
+async function addTask() {
+  const name = document.getElementById('taskName').value.trim();
+  if (!name) {
+    document.getElementById('taskName').style.borderColor = 'var(--red)';
+    document.getElementById('taskName').focus();
+    setTimeout(() => document.getElementById('taskName').style.borderColor = '', 1500);
+    return;
+  }
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = '登録中...';
+
+  const tasks = await getMyTasks(currentUser.id);
+  const t = {
+    id: 't_' + Date.now(),
+    name,
+    due:       document.getElementById('taskDue').value,
+    priority,
+    category:  document.getElementById('taskCategory').value.trim(),
+    background: '', purpose: '', milestone: '', strength: '',
+    done: false,
+    createdAt: Date.now(),
+    createdBy: currentUser.id,
+    source: 'mobile'
+  };
+  tasks.push(t);
+  await setMyTasks(currentUser.id, tasks);
+
+  // リセット
+  document.getElementById('taskName').value = '';
+  document.getElementById('taskCategory').value = '';
+  document.getElementById('taskDue').value = todayStr;
+  setPrio('mid');
+  document.getElementById('taskName').focus();
+
+  btn.disabled = false;
+  btn.innerHTML = '＋ タスクを追加する';
+
+  showToast('✅ 追加しました！');
+  loadRecentTasks();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Enterキーで送信
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.activeElement.id === 'taskName') addTask();
+});
+
+// ════ 起動 ════════════════════════════════════════
+function startInit() {
+  initApp().catch(e => alert('接続エラー: ' + e.message));
+}
+
+// Firebaseモジュールの読み込み完了を待つ
+if (window._firebaseReady) {
+  startInit();
+} else {
+  window._pendingInit = startInit;
+}
+</script>
+</body>
+</html>
